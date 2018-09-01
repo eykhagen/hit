@@ -1,0 +1,14 @@
+{
+  "name": "hit",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "parcel build src/index.js --target=node",
+    "build:watch": "parcel watch src/index.js --target=node"
+  },
+  "description": "CLI for Git with easy commands",
+  "main": "dist/index.js",
+  "repository": "https://github.com/eykhagen/hit",
+  "author": "Eyk Rehbein",
+  "license": "MIT",
+  "private": false
+}
