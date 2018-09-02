@@ -2,4 +2,5 @@ concept.md
 node_modules/
 .cache
 package-lock.json
-/testDir
+testDir/
+dist/

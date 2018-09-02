@@ -12,7 +12,7 @@ export const checkUndefined = (value: any) => {
  * @param message 
  */
 export const writeError = (message: string) => {
-  console.log(`${chalk.red('[Error]')} ${chalk.hex("#e74c3c")(message)}`)
+  console.log(`[ ${chalk.red('\u2717')} ] ${chalk.hex("#e74c3c")(message)}`)
 }
 
 /**
