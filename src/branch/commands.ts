@@ -1,9 +1,7 @@
-import program from 'commander';
-
+const program = require('commander');
 import { createBranch, checkoutBranch } from './module';
 
 export const initBranchCommands = () => {
-
   // register the hit branch command
   program
   .command('branch [subcommand] [parameter]')
@@ -11,7 +9,7 @@ export const initBranchCommands = () => {
   .option('-u, --use', 'Create and use a branch with one command (only available with commands that create a branch)')
   .alias('b')
   .description('Create, use, modify and merge branches')
-  .action(async (subcommand, parameter, cmd) => {
+  .action(async (subcommand: string, parameter: string, cmd: any) => {
     switch(subcommand) {
       case 'add':
         // create a branch
