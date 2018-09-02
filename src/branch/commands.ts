@@ -1,8 +1,8 @@
 const program = require('commander');
 import { Repository, Reference } from 'nodegit';
-import { createBranch, checkoutBranch } from './module';
-import { openRepository } from '../helper/git';
-import { checkUndefined, writeError } from './../helper/cmd';
+import { createBranch, checkoutBranch, deleteBranch } from './module';
+import { openRepository , getBranchRefFromName } from '../helper/git';
+import { checkUndefined} from './../helper/cmd';
 import chalk from 'chalk';
 
 export const initBranchCommands = () => {
@@ -31,20 +31,24 @@ export const initBranchCommands = () => {
         }
         break;
 
+      // checkout a branch
       case 'use':
-        let branchRef: Reference | null = null;
-        try {
-          // get ref from name
-          branchRef = await repo.getBranch(parameter);
-        } catch(e) {
-          // could't find branch
-          writeError(`Couldn't find Branch ${chalk.underline(parameter)}`)
-        }
-        if(branchRef !== null) {
+        let useBranchRef = await getBranchRefFromName(repo, parameter);
+        if(useBranchRef !== null) {
           // checkout the branch
-          await checkoutBranch(repo, branchRef);
+          await checkoutBranch(repo, useBranchRef);
         }
         break;
+
+      // remove a branch
+      case 'delete':
+      case 'remove':
+      case'rm':
+        let rmBranchRef: Reference | null = await getBranchRefFromName(repo, parameter);
+        if(rmBranchRef !== null) {
+          await deleteBranch(rmBranchRef)
+        }
+      break;
 
       default:
         /* also create a branch without using the add keyword

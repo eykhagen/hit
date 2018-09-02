@@ -1,7 +1,7 @@
-import { Repository, Reference } from 'nodegit';
+import { Repository, Reference, Branch } from 'nodegit';
 import chalk from 'chalk';
-import { checkUndefined, writeError, writeSuccess, writeCommand} from '../helper/cmd';
-
+import { checkUndefined, writeError, writeSuccess, writeCommand } from '../helper/cmd';
+import { getShortNameFromRef } from '../helper/git';
 
 /**
  * Create a Branch
@@ -12,7 +12,7 @@ export async function createBranch(repo: Repository , name: string) {
   if(checkUndefined(name)){
     writeError(`The branches's name must not be undefined`)
     return null;
-  } 
+  }
   writeCommand(`$ git branch ${name}`);
 
   // get the head commit 
@@ -35,12 +35,32 @@ export async function createBranch(repo: Repository , name: string) {
  * @param {*} reference Branch reference
  */
 export async function checkoutBranch(repo: Repository, ref: Reference) {
+  const shortName = getShortNameFromRef(ref);
   try {
-    writeCommand(`$ git checkout ${ref.name()}`);
+    writeCommand(`$ git checkout ${shortName}`);
     await repo.checkoutBranch(ref, {})
-    writeSuccess(`Switched to branch ${chalk.underline(ref.name())}`)
+    writeSuccess(`Switched to branch ${chalk.underline(shortName)}`)
   } catch (e) {
-    writeError(`Couldn't checkout Branch`)
+    writeError(`Couldn't checkout Branch ${chalk.underline(shortName)}`)
     writeError(e);
+  }
+}
+
+/**
+ * Delete a Branch
+ * @param repo 
+ * @param ref 
+ */
+export async function deleteBranch(ref: Reference) {
+  const shortName = getShortNameFromRef(ref);
+
+  writeCommand(`$ git branch ${shortName} -D`)
+  const del = Branch.delete(ref);
+  
+  if(del === 0) {
+    writeSuccess(`Successfully removed Branch ${chalk.underline(shortName)}`)
+  } else {
+    writeError(`Couldn't remove Branch ${chalk.underline(shortName)}`)
+    writeError(del.toString())
   }
 }
