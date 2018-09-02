@@ -1,5 +1,9 @@
 const program = require('commander');
+import { Repository, Reference } from 'nodegit';
 import { createBranch, checkoutBranch } from './module';
+import { openRepository } from '../helper/git';
+import { checkUndefined, writeError } from './../helper/cmd';
+import chalk from 'chalk';
 
 export const initBranchCommands = () => {
   // register the hit branch command
@@ -10,28 +14,47 @@ export const initBranchCommands = () => {
   .alias('b')
   .description('Create, use, modify and merge branches')
   .action(async (subcommand: string, parameter: string, cmd: any) => {
+    // open the repo first
+    const repo: Repository = await openRepository()
+    if(checkUndefined(repo)) {
+      return;
+    }
+
     switch(subcommand) {
-      
+      // create a branch
       case 'add':
-        // create a branch
-        const addRef = await createBranch(parameter)
+        const addRef = await createBranch(repo, parameter)
         if (cmd.use) {
           if(addRef !== null) {
-            await checkoutBranch(addRef);
+            await checkoutBranch(repo, addRef);
           }
         }
         break;
-      
+
+      case 'use':
+        let branchRef: Reference | null = null;
+        try {
+          // get ref from name
+          branchRef = await repo.getBranch(parameter);
+        } catch(e) {
+          // could't find branch
+          writeError(`Couldn't find Branch ${chalk.underline(parameter)}`)
+        }
+        if(branchRef !== null) {
+          // checkout the branch
+          await checkoutBranch(repo, branchRef);
+        }
+        break;
+
       default:
         /* also create a branch without using the add keyword
          * e.g. 'hit branch newBranchName' would also create a new branch
         */
-
         // use subcommand instead of parameter because in this case the "subcommand" is the parameter so the name of the new branch
-        const defaultRef = await createBranch(subcommand)
+        const defaultRef = await createBranch(repo, subcommand)
         if (cmd.use) {
           if(defaultRef !== null) {
-            await checkoutBranch(defaultRef);
+            await checkoutBranch(repo, defaultRef);
           }
         }
         break;

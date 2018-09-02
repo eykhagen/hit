@@ -1,6 +1,8 @@
 {
   "name": "hit",
   "version": "1.0.0",
+  "preferGlobal": true,
+  "bin": "dist/index.js",
   "scripts": {
     "build": "parcel build src/index.ts --target=node",
     "build:watch": "parcel watch src/index.ts --target=node"
@@ -17,7 +19,6 @@
     "nodegit": "^0.22.2"
   },
   "devDependencies": {
-    "@types/commander": "^2.12.2",
     "@types/nodegit": "^0.22.3",
     "typescript": "^3.0.3"
   }
