@@ -103,6 +103,100 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   // Override the current require with this new one
   return newRequire;
-})({"index.js":[function(require,module,exports) {
+})({"helper/cmd.js":[function(require,module,exports) {
+'use strict';
 
-},{}]},{},["index.js"], null)
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.writeError = exports.checkUndefined = undefined;
+
+var _chalk = require('chalk');
+
+var _chalk2 = _interopRequireDefault(_chalk);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Checks whether a value is undefined
+ * @param {*} value 
+ */
+const checkUndefined = exports.checkUndefined = value => {
+  return typeof value === 'undefined';
+};
+
+const writeError = exports.writeError = message => {
+  console.log(`${_chalk2.default.red('[Error]')} ${message}`);
+};
+},{}],"branch/module.js":[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createBranch = createBranch;
+exports.checkoutBranch = checkoutBranch;
+
+var _cmd = require('../helper/cmd');
+
+/**
+ * Create a Branch
+ * @param {string} name name of the branch
+ */
+async function createBranch(name) {
+  // http://www.nodegit.org/api/branch/#create
+  if ((0, _cmd.checkUndefined)(name)) {
+    (0, _cmd.writeError)(`The branches's name must not be undefined`);
+  }
+}
+
+/**
+ * Checkout a branch
+ * @param {*} reference Branch reference
+ */
+async function checkoutBranch(reference) {
+  // https://github.com/nodegit/nodegit/blob/master/examples/checkout-remote-branch.js
+  console.log('checkout');
+}
+},{"../helper/cmd":"helper/cmd.js"}],"branch/commands.js":[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initBranchCommands = undefined;
+
+var _commander = require('commander');
+
+var _commander2 = _interopRequireDefault(_commander);
+
+var _module = require('./module');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const initBranchCommands = exports.initBranchCommands = () => {
+
+  // register the hit branch command
+  _commander2.default.command('branch [subcommand] [parameter]')
+  // --u option is only available with hit branch <branch_name> -u command 
+  .option('-u, --use', 'Create and use a branch with one command (only available with commands that create a branch)').alias('b').description('Create, use, modify and merge branches').action(async (subcommand, parameter, cmd) => {
+    switch (subcommand) {
+      case 'add':
+        // create a branch
+        const reference = await (0, _module.createBranch)(parameter);
+        if (cmd.use) {
+          await (0, _module.checkoutBranch)(reference);
+        }
+    }
+  });
+
+  _commander2.default.parse(process.argv);
+};
+},{"./module":"branch/module.js"}],"index.js":[function(require,module,exports) {
+'use strict';
+
+var _commands = require('./branch/commands');
+
+(0, _commands.initBranchCommands)(); ///usr/bin/env node
+},{"./branch/commands":"branch/commands.js"}]},{},["index.js"], null)
+//# sourceMappingURL=/index.map

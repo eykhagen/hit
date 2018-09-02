@@ -10,5 +10,9 @@
   "repository": "https://github.com/eykhagen/hit",
   "author": "Eyk Rehbein",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "commander": "^2.17.1"
+  }
 }
