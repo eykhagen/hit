@@ -1,4 +1,4 @@
-import { Repository } from 'nodegit';
+import { Repository, Reference } from 'nodegit';
 import chalk from 'chalk';
 import { checkUndefined, writeError, writeSuccess, writeCommand} from '../helper/cmd';
 import { openRepository } from '../helper/git';
@@ -12,14 +12,14 @@ export async function createBranch(name: string) {
   // http://www.nodegit.org/api/branch/#create
   if(checkUndefined(name)){
     writeError(`The branches's name must not be undefined`)
-    return
+    return null;
   } 
   writeCommand(`$ git branch ${name}`);
 
   // open the repository first (at cwd)
   const repo: Repository = await openRepository();
   if(typeof repo === 'undefined') {
-    return;
+    return null;
   }
 
   // get the head commit 
@@ -27,11 +27,13 @@ export async function createBranch(name: string) {
 
   // create the branch
   try {
-    await repo.createBranch(name, headCommit, false);
+    const ref = await repo.createBranch(name, headCommit, false);
     writeSuccess(`Successfully created branch ${chalk.underline(name)}`);
+    return ref;
   } catch(e) {
     writeError(`Couldn't create new Branch`)
     writeError(e)
+    return null;
   }
 }
 
@@ -39,7 +41,7 @@ export async function createBranch(name: string) {
  * Checkout a branch
  * @param {*} reference Branch reference
  */
-export async function checkoutBranch(reference: any) {
+export async function checkoutBranch(reference: Reference) {
  // https://github.com/nodegit/nodegit/blob/master/examples/checkout-remote-branch.js
  // console.log('checkout');
 }

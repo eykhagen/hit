@@ -11,12 +11,30 @@ export const initBranchCommands = () => {
   .description('Create, use, modify and merge branches')
   .action(async (subcommand: string, parameter: string, cmd: any) => {
     switch(subcommand) {
+      
       case 'add':
         // create a branch
-        const reference = await createBranch(parameter)
+        const addRef = await createBranch(parameter)
         if (cmd.use) {
-          await checkoutBranch(reference);
+          if(addRef !== null) {
+            await checkoutBranch(addRef);
+          }
         }
+        break;
+      
+      default:
+        /* also create a branch without using the add keyword
+         * e.g. 'hit branch newBranchName' would also create a new branch
+        */
+
+        // use subcommand instead of parameter because in this case the "subcommand" is the parameter so the name of the new branch
+        const defaultRef = await createBranch(subcommand)
+        if (cmd.use) {
+          if(defaultRef !== null) {
+            await checkoutBranch(defaultRef);
+          }
+        }
+        break;
     }
   });
 

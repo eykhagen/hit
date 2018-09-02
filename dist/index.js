@@ -344,21 +344,21 @@ var git_1 = require("../helper/git");
  */
 function createBranch(name) {
     return __awaiter(this, void 0, void 0, function () {
-        var repo, headCommit, e_1;
+        var repo, headCommit, ref, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     // http://www.nodegit.org/api/branch/#create
                     if (cmd_1.checkUndefined(name)) {
                         cmd_1.writeError("The branches's name must not be undefined");
-                        return [2 /*return*/];
+                        return [2 /*return*/, null];
                     }
                     cmd_1.writeCommand("$ git branch " + name);
                     return [4 /*yield*/, git_1.openRepository()];
                 case 1:
                     repo = _a.sent();
                     if (typeof repo === 'undefined') {
-                        return [2 /*return*/];
+                        return [2 /*return*/, null];
                     }
                     return [4 /*yield*/, repo.getHeadCommit()];
                 case 2:
@@ -368,14 +368,14 @@ function createBranch(name) {
                     _a.trys.push([3, 5,, 6]);
                     return [4 /*yield*/, repo.createBranch(name, headCommit, false)];
                 case 4:
-                    _a.sent();
+                    ref = _a.sent();
                     cmd_1.writeSuccess("Successfully created branch " + chalk_1.default.underline(name));
-                    return [3 /*break*/, 6];
+                    return [2 /*return*/, ref];
                 case 5:
                     e_1 = _a.sent();
                     cmd_1.writeError("Couldn't create new Branch");
                     cmd_1.writeError(e_1);
-                    return [3 /*break*/, 6];
+                    return [2 /*return*/, null];
                 case 6:
                     return [2 /*return*/];
             }
@@ -487,7 +487,7 @@ exports.initBranchCommands = function () {
     // --u option is only available with hit branch <branch_name> -u command 
     .option('-u, --use', 'Create and use a branch with one command (only available with commands that create a branch)').alias('b').description('Create, use, modify and merge branches').action(function (subcommand, parameter, cmd) {
         return __awaiter(_this, void 0, void 0, function () {
-            var _a, reference;
+            var _a, addRef, defaultRef;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -496,17 +496,32 @@ exports.initBranchCommands = function () {
                             case 'add':
                                 return [3 /*break*/, 1];
                         }
-                        return [3 /*break*/, 4];
+                        return [3 /*break*/, 5];
                     case 1:
                         return [4 /*yield*/, module_1.createBranch(parameter)];
                     case 2:
-                        reference = _b.sent();
+                        addRef = _b.sent();
                         if (!cmd.use) return [3 /*break*/, 4];
-                        return [4 /*yield*/, module_1.checkoutBranch(reference)];
+                        if (!(addRef !== null)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, module_1.checkoutBranch(addRef)];
                     case 3:
                         _b.sent();
                         _b.label = 4;
                     case 4:
+                        return [3 /*break*/, 9];
+                    case 5:
+                        return [4 /*yield*/, module_1.createBranch(subcommand)];
+                    case 6:
+                        defaultRef = _b.sent();
+                        if (!cmd.use) return [3 /*break*/, 8];
+                        if (!(defaultRef !== null)) return [3 /*break*/, 8];
+                        return [4 /*yield*/, module_1.checkoutBranch(defaultRef)];
+                    case 7:
+                        _b.sent();
+                        _b.label = 8;
+                    case 8:
+                        return [3 /*break*/, 9];
+                    case 9:
                         return [2 /*return*/];
                 }
             });
