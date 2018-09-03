@@ -1,10 +1,9 @@
-const Table = require('cli-table3');
-
-import { Repository, Reference, Branch, Commit } from 'nodegit';
 import chalk from 'chalk';
+import { Repository, Reference, Commit } from 'nodegit';
 import { checkUndefined, writeError, writeSuccess, writeCommand } from '../helper/cmd';
-import { getShortNameFromRef } from '../helper/git';
+import { getShortNameFromRef, deleteBranch as helperDeleteBranch } from '../helper/git';
 
+const Table = require('cli-table3');
 /**
  * Create a Branch
  * @param {string} name name of the branch
@@ -57,8 +56,7 @@ export async function deleteBranch(ref: Reference) {
   const shortName = getShortNameFromRef(ref);
 
   writeCommand(`$ git branch ${shortName} -D`)
-  const del = Branch.delete(ref);
-  console.log(del);
+  const del = helperDeleteBranch(ref);
   if(del === 0) {
     writeSuccess(`Successfully removed Branch ${chalk.underline(shortName)}`)
   } else {
@@ -87,37 +85,45 @@ export async function showListOfBranches(repo: Repository, cmd: any) {
     const isActive = Boolean(ref.isHead());
     const isRemote = Boolean(ref.isRemote());
 
+    // get reference latest commit
     const refCommit: Commit = await repo.getReferenceCommit(ref)
+    // toString the commit
     let commit = refCommit.id().tostrS().slice(0, 7)
 
-
+    // highlight the name of the currently active branch
     if(isActive === true) {
       name = chalk.hex('#1abc9c').bold(name)
     }
 
+    // check for remote and change the remote/local string 
     let remoteText: string = 'Local';
     if(isRemote === true) {
       remoteText = 'Remote'
     }
 
+    // change the color of remote branches to grey if the --remoteOnly flag isn't set
     if(isRemote && !isActive && !cmd.remoteOnly) {
       name = chalk.grey(name);
       commit = chalk.grey(commit);
       remoteText = chalk.grey(remoteText);
     }
 
+    // print --remoteOnly branches
     if(cmd.remoteOnly && isRemote) {
       table.push([name, commit , remoteText]);
     }
+
+    // print --localOnly branches
     if(cmd.localOnly && !isRemote) {
       table.push([name, commit , remoteText]);
     }
 
+    // print all branches
     if(!cmd.localOnly && !cmd.remoteOnly) {
       table.push([name, commit ,remoteText]);
     }
     
-  })
+  }
 
   console.log(table.toString());
 
