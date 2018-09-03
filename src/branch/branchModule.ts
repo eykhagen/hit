@@ -70,7 +70,7 @@ export async function deleteBranch(ref: Reference) {
 /**
  * Show a table of all branches in the repository
  */
-export async function showListOfBranches(repo: Repository) {
+export async function showListOfBranches(repo: Repository, cmd: any) {
 
   // notes
   // 1. make the color of the active branch different from the others
@@ -94,18 +94,29 @@ export async function showListOfBranches(repo: Repository) {
     if(isActive === true) {
       name = chalk.hex('#1abc9c').bold(name)
     }
+
     let remoteText: string = 'Local';
     if(isRemote === true) {
-      remoteText = chalk.grey('Remote');
+      remoteText = 'Remote'
     }
 
-    if(isRemote && !isActive) {
+    if(isRemote && !isActive && !cmd.remoteOnly) {
       name = chalk.grey(name);
       commit = chalk.grey(commit);
+      remoteText = chalk.grey(remoteText);
     }
 
+    if(cmd.remoteOnly && isRemote) {
+      table.push([name, commit , remoteText]);
+    }
+    if(cmd.localOnly && !isRemote) {
+      table.push([name, commit , remoteText]);
+    }
 
-    table.push([name, commit ,remoteText]);
+    if(!cmd.localOnly && !cmd.remoteOnly) {
+      table.push([name, commit ,remoteText]);
+    }
+    
   })
 
   console.log(table.toString());

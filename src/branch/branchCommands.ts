@@ -70,9 +70,11 @@ export const initBranchCommands = async () => {
   program
     .command('list')
     .alias('ls')
+    .option('-l ,--localOnly', 'Show only local branches')
+    .option('-r, --remoteOnly', 'Show only remote branches')
     .description('List all branches and get short information about them')
-    .action(async () => {
-      await showListOfBranches(repo);
+    .action(async (cmd: any) => {
+      await showListOfBranches(repo, cmd);
     })
   program.parse(process.argv);
 }
