@@ -2,7 +2,7 @@ const program = require('commander');
 const Confirm = require('prompt-confirm');
 
 import { Repository, Reference} from 'nodegit';
-import { createBranch, checkoutBranch, deleteBranch } from './branchModule';
+import { createBranch, checkoutBranch, deleteBranch, showListOfBranches } from './branchModule';
 import { openRepository , getBranchRefFromName } from '../helper/git';
 import { writeError } from '../helper/cmd';
 import chalk from 'chalk';
@@ -55,7 +55,7 @@ export const initBranchCommands = async () => {
   program
     .command('remove <name>')
     .alias('rm')
-    .alias('delete')
+    .description('Remove a branch')
     .action(async (name: string) => {
       let rmBranchRef: Reference | null = await getBranchRefFromName(repo, name);
       if(rmBranchRef !== null) {
@@ -64,5 +64,13 @@ export const initBranchCommands = async () => {
         writeError(`Couldn't find Branch ${chalk.underline(name)}`)
       }
     });
+
+  program
+    .command('list')
+    .alias('ls')
+    .description('List all branches and get short information about them')
+    .action(async () => {
+      await showListOfBranches(repo);
+    })
   program.parse(process.argv);
 }
