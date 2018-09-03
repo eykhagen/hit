@@ -1,6 +1,5 @@
 import { Repository, Reference } from 'nodegit';
 import { writeError } from './cmd';
-import chalk from 'chalk';
 /**
  * Opens the repository at the cwd and returns it to work with ti
  */
@@ -26,7 +25,6 @@ export async function getBranchRefFromName(repo: Repository, name: string) {
     return branchRef;
   } catch(e) {
     // could't find branch
-    // writeError(`Couldn't find Branch ${chalk.underline(name)}`)
     return branchRef;
   }
 }

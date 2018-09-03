@@ -2,7 +2,7 @@ const program = require('commander');
 const Confirm = require('prompt-confirm');
 
 import { Repository, Reference} from 'nodegit';
-import { createBranch, checkoutBranch, deleteBranch } from './branchModule';
+import { createBranch, checkoutBranch, deleteBranch, showListOfBranches } from './branchModule';
 import { openRepository , getBranchRefFromName } from '../helper/git';
 import { writeError } from '../helper/cmd';
 import chalk from 'chalk';
@@ -18,6 +18,7 @@ export const initBranchCommands = async () => {
   program
     .command('add <name>')
     .option('-u, --use', 'Checkout the branch on creation')
+    .description('Create a new branch')
     .action(async (name: string, cmd: any) => {
       const addRef: Reference | null = await createBranch(repo, name)
       if (cmd.use) {
@@ -29,6 +30,7 @@ export const initBranchCommands = async () => {
 
   program
     .command('use <name>')
+    .description('Checkout a branch')
     .option('-y, --yes', `Skip the yes/no prompt if the branch doesn't exist and create it`)
     .action(async (name: string, cmd: any) => {
       // check whether the branch exists
@@ -55,7 +57,7 @@ export const initBranchCommands = async () => {
   program
     .command('remove <name>')
     .alias('rm')
-    .alias('delete')
+    .description('Remove a branch')
     .action(async (name: string) => {
       let rmBranchRef: Reference | null = await getBranchRefFromName(repo, name);
       if(rmBranchRef !== null) {
@@ -64,5 +66,15 @@ export const initBranchCommands = async () => {
         writeError(`Couldn't find Branch ${chalk.underline(name)}`)
       }
     });
+
+  program
+    .command('list')
+    .alias('ls')
+    .option('-l ,--localOnly', 'Show only local branches')
+    .option('-r, --remoteOnly', 'Show only remote branches')
+    .description('List all branches and get short information about them')
+    .action(async (cmd: any) => {
+      await showListOfBranches(repo, cmd);
+    })
   program.parse(process.argv);
 }

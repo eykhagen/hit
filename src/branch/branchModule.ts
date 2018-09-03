@@ -1,4 +1,6 @@
-import { Repository, Reference, Branch } from 'nodegit';
+const Table = require('cli-table3');
+
+import { Repository, Reference, Branch, Commit } from 'nodegit';
 import chalk from 'chalk';
 import { checkUndefined, writeError, writeSuccess, writeCommand } from '../helper/cmd';
 import { getShortNameFromRef } from '../helper/git';
@@ -63,4 +65,60 @@ export async function deleteBranch(ref: Reference) {
     writeError(`Couldn't remove Branch ${chalk.underline(shortName)}`)
     writeError(del.toString())
   }
+}
+
+/**
+ * Show a table of all branches in the repository
+ */
+export async function showListOfBranches(repo: Repository, cmd: any) {
+
+  // notes
+  // 1. make the color of the active branch different from the others
+  // 2. Colums: name, latestCommit, local/remote
+  const allBranches = await repo.getReferences(1)
+  let table: Array<any> = new Table({
+    head: [chalk.hex('#1abc9c').bold('Name'), chalk.hex('#1abc9c').bold('Latest Commit'), chalk.hex('#1abc9c').bold('Remote/Local')]
+  })
+
+  for(const ref of allBranches) {
+
+    let name: string = getShortNameFromRef(ref)
+    // convert 0 and 1 to Boolean
+    const isActive = Boolean(ref.isHead());
+    const isRemote = Boolean(ref.isRemote());
+
+    const refCommit: Commit = await repo.getReferenceCommit(ref)
+    let commit = refCommit.id().tostrS().slice(0, 7)
+
+
+    if(isActive === true) {
+      name = chalk.hex('#1abc9c').bold(name)
+    }
+
+    let remoteText: string = 'Local';
+    if(isRemote === true) {
+      remoteText = 'Remote'
+    }
+
+    if(isRemote && !isActive && !cmd.remoteOnly) {
+      name = chalk.grey(name);
+      commit = chalk.grey(commit);
+      remoteText = chalk.grey(remoteText);
+    }
+
+    if(cmd.remoteOnly && isRemote) {
+      table.push([name, commit , remoteText]);
+    }
+    if(cmd.localOnly && !isRemote) {
+      table.push([name, commit , remoteText]);
+    }
+
+    if(!cmd.localOnly && !cmd.remoteOnly) {
+      table.push([name, commit ,remoteText]);
+    }
+    
+  })
+
+  console.log(table.toString());
+
 }
