@@ -1,70 +1,56 @@
 const program = require('commander');
-import { Repository, Reference } from 'nodegit';
+const Confirm = require('prompt-confirm');
+
+import { Repository } from 'nodegit';
 import { createBranch, checkoutBranch, deleteBranch } from './module';
 import { openRepository , getBranchRefFromName } from '../helper/git';
 import { checkUndefined} from './../helper/cmd';
 import chalk from 'chalk';
 
-export const initBranchCommands = () => {
+
+export const initBranchCommands = async () => {
   // register the hit branch command
+  const repo: Repository = await openRepository()
+  if(checkUndefined(repo)) {
+    return;
+  }
+  
   program
-  .command('branch [subcommand] [parameter]')
-  // --u option is only available with hit branch <branch_name> -u command 
-  .option('-u, --use', 'Create and use a branch with one command (only available with commands that create a branch)')
-  .alias('b')
-  .description('Create, use, modify and merge branches')
-  .action(async (subcommand: string, parameter: string, cmd: any) => {
-    // open the repo first
-    const repo: Repository = await openRepository()
-    if(checkUndefined(repo)) {
+    .command('add <name>')
+    .option('-u, --use', 'Checkout the branch on creation')
+    .action(async (name: string, cmd: any) => {
+      const addRef = await createBranch(repo, name)
+      if (cmd.use) {
+        if(addRef !== null) {
+          await checkoutBranch(repo, addRef);
+        }
+      }
+    });
+
+  program
+    .command('use <name>')
+    .option('-y, --yes', `Skip the yes/no prompt if the branch doesn't exist and create it`)
+    .action(async (name: string, cmd: any) => {
+      // check whether the branch exists
+      const branchRef = await getBranchRefFromName(repo, name);
+      
+      // if the ref doesn't exist
+      if(branchRef === null) {
+        if(!cmd.yes) {
+          const prompt = new Confirm(chalk.hex('#1abc9c').bold(`The branch ${chalk.underline(name)} doesn't exist. Do you want to create it?`));
+          const answer = await prompt.run();
+          if(answer === true) {
+            const addRef = await createBranch(repo, name);
+            if(addRef !== null) {
+              await checkoutBranch(repo, addRef);
+            }
+          }
+        }
+        return;
+      } 
+
+      await checkoutBranch(repo, branchRef);
       return;
-    }
-
-    switch(subcommand) {
-      // create a branch
-      case 'add':
-        const addRef = await createBranch(repo, parameter)
-        if (cmd.use) {
-          if(addRef !== null) {
-            await checkoutBranch(repo, addRef);
-          }
-        }
-        break;
-
-      // checkout a branch
-      case 'use':
-        let useBranchRef = await getBranchRefFromName(repo, parameter);
-        if(useBranchRef !== null) {
-          // checkout the branch
-          await checkoutBranch(repo, useBranchRef);
-        }
-        break;
-
-      // remove a branch
-      case 'delete':
-      case 'remove':
-      case'rm':
-        let rmBranchRef: Reference | null = await getBranchRefFromName(repo, parameter);
-        if(rmBranchRef !== null) {
-          await deleteBranch(rmBranchRef)
-        }
-      break;
-
-      default:
-        /* also create a branch without using the add keyword
-         * e.g. 'hit branch newBranchName' would also create a new branch
-        */
-        // use subcommand instead of parameter because in this case the "subcommand" is the parameter so the name of the new branch
-        const defaultRef = await createBranch(repo, subcommand)
-        if (cmd.use) {
-          if(defaultRef !== null) {
-            await checkoutBranch(repo, defaultRef);
-          }
-        }
-        break;
-    }
-  });
-
-
+    })
   program.parse(process.argv);
 }

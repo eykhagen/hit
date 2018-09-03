@@ -26,7 +26,7 @@ export async function getBranchRefFromName(repo: Repository, name: string) {
     return branchRef;
   } catch(e) {
     // could't find branch
-    writeError(`Couldn't find Branch ${chalk.underline(name)}`)
+    // writeError(`Couldn't find Branch ${chalk.underline(name)}`)
     return branchRef;
   }
 }
