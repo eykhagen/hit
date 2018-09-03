@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import { initBranchCommands } from './branch/commands';
+import { initBranchCommands } from './branch/branchCommands';
 
 initBranchCommands();

@@ -56,7 +56,7 @@ export async function deleteBranch(ref: Reference) {
 
   writeCommand(`$ git branch ${shortName} -D`)
   const del = Branch.delete(ref);
-  
+  console.log(del);
   if(del === 0) {
     writeSuccess(`Successfully removed Branch ${chalk.underline(shortName)}`)
   } else {

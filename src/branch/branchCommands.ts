@@ -1,17 +1,17 @@
 const program = require('commander');
 const Confirm = require('prompt-confirm');
 
-import { Repository } from 'nodegit';
-import { createBranch, checkoutBranch, deleteBranch } from './module';
+import { Repository, Reference} from 'nodegit';
+import { createBranch, checkoutBranch, deleteBranch } from './branchModule';
 import { openRepository , getBranchRefFromName } from '../helper/git';
-import { checkUndefined} from './../helper/cmd';
+import { writeError } from '../helper/cmd';
 import chalk from 'chalk';
 
 
 export const initBranchCommands = async () => {
   // register the hit branch command
-  const repo: Repository = await openRepository()
-  if(checkUndefined(repo)) {
+  const repo: Repository | undefined = await openRepository()
+  if(typeof repo === 'undefined') {
     return;
   }
   
@@ -19,7 +19,7 @@ export const initBranchCommands = async () => {
     .command('add <name>')
     .option('-u, --use', 'Checkout the branch on creation')
     .action(async (name: string, cmd: any) => {
-      const addRef = await createBranch(repo, name)
+      const addRef: Reference | null = await createBranch(repo, name)
       if (cmd.use) {
         if(addRef !== null) {
           await checkoutBranch(repo, addRef);
@@ -40,7 +40,7 @@ export const initBranchCommands = async () => {
           const prompt = new Confirm(chalk.hex('#1abc9c').bold(`The branch ${chalk.underline(name)} doesn't exist. Do you want to create it?`));
           const answer = await prompt.run();
           if(answer === true) {
-            const addRef = await createBranch(repo, name);
+            const addRef: Reference | null = await createBranch(repo, name);
             if(addRef !== null) {
               await checkoutBranch(repo, addRef);
             }
@@ -52,5 +52,17 @@ export const initBranchCommands = async () => {
       await checkoutBranch(repo, branchRef);
       return;
     })
+  program
+    .command('remove <name>')
+    .alias('rm')
+    .alias('delete')
+    .action(async (name: string) => {
+      let rmBranchRef: Reference | null = await getBranchRefFromName(repo, name);
+      if(rmBranchRef !== null) {
+        await deleteBranch(rmBranchRef)
+      } else {
+        writeError(`Couldn't find Branch ${chalk.underline(name)}`)
+      }
+    });
   program.parse(process.argv);
 }
