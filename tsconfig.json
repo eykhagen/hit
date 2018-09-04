@@ -9,8 +9,8 @@
     "declaration": false,
     "jsx": "preserve",
     "lib": [
-      "es2017",
-    ],
+      "es2017","es2015","dom","es6"
+     ],
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

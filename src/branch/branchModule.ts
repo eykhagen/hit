@@ -117,8 +117,28 @@ export async function showListOfBranches(repo: Repository, cmd: any) {
       table.push([name, commit ,remoteText]);
     }
     
-  })
+  }
 
   console.log(table.toString());
 
+}
+
+/**
+ * Equivalent to git checkout -b -> Creates a new branch and checks it out
+ */
+export async function checkoutNewBranch(repo: Repository, name: string){
+  writeCommand(`$ git checkout -b ${name}`);
+
+  // get the head commit 
+  const headCommit = await repo.getHeadCommit();
+
+  // create the branch
+  try {
+    const ref = await repo.createBranch(name, headCommit, false);
+    await repo.checkoutBranch(ref, {});
+    writeSuccess(`Branch ${chalk.underline(name)} created & checked out`)
+  } catch(e) {
+    writeError(`Couldn't create & checkout new Branch`)
+    writeError(e)
+  }
 }
