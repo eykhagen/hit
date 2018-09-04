@@ -88,7 +88,7 @@ export async function showListOfBranches(repo: Repository, cmd: any) {
     // get reference latest commit
     const refCommit: Commit = await repo.getReferenceCommit(ref)
     // toString the commit
-    let commit = refCommit.id().tostrS().slice(0, 7)
+    let commit = refCommit.sha().slice(0, 7)
 
     // highlight the name of the currently active branch
     if(isActive === true) {
