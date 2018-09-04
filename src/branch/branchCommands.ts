@@ -1,8 +1,8 @@
-const program = require('commander');
+import * as program from 'commander';
 const Confirm = require('prompt-confirm');
 
 import { Repository, Reference} from 'nodegit';
-import { createBranch, checkoutBranch, deleteBranch, showListOfBranches } from './branchModule';
+import { createBranch, checkoutBranch, deleteBranch, showListOfBranches, checkoutNewBranch } from './branchModule';
 import { openRepository , getBranchRefFromName } from '../helper/git';
 import { writeError } from '../helper/cmd';
 import chalk from 'chalk';
@@ -20,12 +20,12 @@ export const initBranchCommands = async () => {
     .option('-u, --use', 'Checkout the branch on creation')
     .description('Create a new branch')
     .action(async (name: string, cmd: any) => {
-      const addRef: Reference | null = await createBranch(repo, name)
       if (cmd.use) {
-        if(addRef !== null) {
-          await checkoutBranch(repo, addRef);
-        }
+          await checkoutNewBranch(repo, name);
+          return;
       }
+      await createBranch(repo, name)
+
     });
 
   program
@@ -42,10 +42,7 @@ export const initBranchCommands = async () => {
           const prompt = new Confirm(chalk.hex('#1abc9c').bold(`The branch ${chalk.underline(name)} doesn't exist. Do you want to create it?`));
           const answer = await prompt.run();
           if(answer === true) {
-            const addRef: Reference | null = await createBranch(repo, name);
-            if(addRef !== null) {
-              await checkoutBranch(repo, addRef);
-            }
+              await checkoutNewBranch(repo, name);
           }
         }
         return;
@@ -76,5 +73,6 @@ export const initBranchCommands = async () => {
     .action(async (cmd: any) => {
       await showListOfBranches(repo, cmd);
     })
+
   program.parse(process.argv);
 }
