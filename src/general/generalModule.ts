@@ -54,8 +54,24 @@ export const getGeneralInformation = async () => {
   
   // get remotes
   const remoteOrigin = await getRemoteOrigin(repo);
+
+  // if origin was found
+  if(typeof remoteOrigin.url !== 'undefined') {
+    // get remote master head commit
+    const remoteMaster = await repo.getReference('refs/remotes/origin/master');
+    const remoteMasterCommit = await repo.getReferenceCommit(remoteMaster);
+    const remoteMasterCommitShortSha = remoteMasterCommit.sha().slice(0, 7);
+
+    // check whether the remote master head commit is up to date with the local master head or newer/older
+    let remoteMasterCommitInColor = chalk.red(remoteMasterCommitShortSha);
+    if(remoteMasterCommitShortSha === masterCommitShortSha) {
+      remoteMasterCommitInColor = chalk.green(remoteMasterCommitShortSha)
+    }
   
-  writeInfoMessage('Remote origin', `${remoteOrigin.url()}`)
+    writeInfoMessage('Remote origin', `${remoteOrigin.url()} ${chalk.grey('[master ' + remoteMasterCommitInColor + ']')}`)
+  } else {
+    writeInfoMessage('Remote origin', 'none')
+  }
 
   console.log();
 
