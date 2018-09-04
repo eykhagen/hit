@@ -7,12 +7,13 @@ const init = async () => {
   await initBranchCommands();
   await initGeneralCommands();
 } 
+program.on('command:*', function () {
+  console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));
+  program.help()
+});
 
 init().then(() => {
-  program.on('command:*', function () {
-    console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));
-    program.help()
-  });
+
   if(process.argv.length === 2){
     program.help();
   }
