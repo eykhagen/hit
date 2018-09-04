@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import { writeSuggestion, writeCommand } from './../helper/cmd';
+import { writeSuggestion } from './../helper/cmd';
 import { Repository, Reference, Commit} from 'nodegit';
-import { openRepository, getBranchRefFromName, getShortNameFromRef, getRemoteOrigin } from "../helper/git";
+import { openRepository, getShortNameFromRef, getRemoteOrigin } from "../helper/git";
 
 export const getGeneralInformation = async () => {
   /* information to show:
