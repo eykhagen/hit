@@ -2,7 +2,7 @@ import * as program from 'commander';
 const Confirm = require('prompt-confirm');
 
 import { Repository, Reference} from 'nodegit';
-import { createBranch, checkoutBranch, deleteBranch, showListOfBranches, checkoutNewBranch } from './branchModule';
+import { createBranch, checkoutBranch, deleteBranch, showListOfBranches, checkoutNewBranch, mergeMasterIntoBranch } from './branchModule';
 import { openRepository , getBranchRefFromName } from '../helper/git';
 import { writeError } from '../helper/cmd';
 import chalk from 'chalk';
@@ -30,6 +30,7 @@ export const initBranchCommands = async () => {
 
   program
     .command('use <name>')
+    .alias('u')
     .description('Checkout a branch')
     .option('-y, --yes', `Skip the yes/no prompt if the branch doesn't exist and create it`)
     .action(async (name: string, cmd: any) => {
@@ -85,6 +86,13 @@ export const initBranchCommands = async () => {
       } else {
         writeError(`Couldn't find ${chalk.underline('master')} Branch`)
       }
+    });
+
+  program
+    .command('update')
+    .description('Merges the current master HEAD commit into the current branch')
+    .action(async () => {
+      await mergeMasterIntoBranch(repo);
     });
 
   program.parse(process.argv);
