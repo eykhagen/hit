@@ -1,4 +1,4 @@
-import { Repository, Reference, Branch } from 'nodegit';
+import { Repository, Reference, Branch, Remote } from 'nodegit';
 import { writeError } from './cmd';
 /**
  * Opens the repository at the cwd and returns it to work with ti
@@ -38,4 +38,8 @@ export function getShortNameFromRef(ref: Reference) {
 
 export function deleteBranch(ref: Reference){
   return Branch.delete(ref);
+}
+
+export async function getRemoteOrigin(repo: Repository) {
+  return await Remote.lookup(repo, 'origin', () => true)
 }
