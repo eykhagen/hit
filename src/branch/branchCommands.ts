@@ -74,5 +74,18 @@ export const initBranchCommands = async () => {
       await showListOfBranches(repo, cmd);
     })
 
+  program
+    .command('master')
+    .alias('m')
+    .description('Checkout master branch')
+    .action(async () => {
+      let masterRef: Reference | null = await getBranchRefFromName(repo, 'master');
+      if(masterRef !== null) {
+        await checkoutBranch(repo, masterRef)
+      } else {
+        writeError(`Couldn't find ${chalk.underline('master')} Branch`)
+      }
+    });
+
   program.parse(process.argv);
 }
