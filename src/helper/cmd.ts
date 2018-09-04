@@ -30,3 +30,7 @@ export const writeSuccess = (message: string) => {
 export const writeCommand = (message: string) => {
   console.log(chalk.grey.bold(message));
 }
+
+export const writeSuggestion = (message: string) => {
+  console.log(`${chalk.grey.bold('[ Suggestion ]')} ${chalk.hex('D3D3D3')(message)}`);
+}
