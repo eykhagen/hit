@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { writeError } from './../helper/cmd';
+import { writeSuggestion, writeCommand } from './../helper/cmd';
 import { Repository, Reference, Commit} from 'nodegit';
 import { openRepository, getBranchRefFromName, getShortNameFromRef, getRemoteOrigin } from "../helper/git";
 
@@ -43,7 +43,7 @@ export const getGeneralInformation = async () => {
   writeInfoMessage('Current branch', branchName)
 
   // color of master will be red if the head commit of branch and master doesn't match 
-  let masterCommitInColor = chalk.red(masterCommitShortSha);
+  let masterCommitInColor = chalk.hex('#FFA500')(masterCommitShortSha);
   if(refCommitIsUpToDate === true) {
     // ... green if they do match
     masterCommitInColor = chalk.green(masterCommitShortSha);
@@ -63,12 +63,18 @@ export const getGeneralInformation = async () => {
     const remoteMasterCommitShortSha = remoteMasterCommit.sha().slice(0, 7);
 
     // check whether the remote master head commit is up to date with the local master head or newer/older
-    let remoteMasterCommitInColor = chalk.red(remoteMasterCommitShortSha);
+    let remoteMasterCommitInColor = chalk.hex('#FFA500')(remoteMasterCommitShortSha);
     if(remoteMasterCommitShortSha === masterCommitShortSha) {
       remoteMasterCommitInColor = chalk.green(remoteMasterCommitShortSha)
     }
   
     writeInfoMessage('Remote origin', `${remoteOrigin.url()} ${chalk.grey('[master ' + remoteMasterCommitInColor + ']')}`)
+    if(remoteMasterCommitShortSha !== masterCommitShortSha) {
+      console.log();
+      writeSuggestion(`Remote ${chalk.underline('master')} and local ${chalk.underline('master')} differ. Consider to fetch/push the changes`);
+      // writeSuggestion(chalk.bold('$ hit remote pull'))
+      // writeSuggestion(chalk.bold('$ hit remote push'))
+    }
   } else {
     writeInfoMessage('Remote origin', 'none')
   }
