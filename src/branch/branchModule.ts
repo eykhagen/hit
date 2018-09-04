@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import { Repository, Reference, Commit } from 'nodegit';
+import { Repository, Reference, Commit, MergeOptions } from 'nodegit';
+const Merge = require('nodegit').Merge;
 import { checkUndefined, writeError, writeSuccess, writeCommand } from '../helper/cmd';
 import { getShortNameFromRef, deleteBranch as helperDeleteBranch } from '../helper/git';
 
@@ -146,5 +147,19 @@ export async function checkoutNewBranch(repo: Repository, name: string){
   } catch(e) {
     writeError(`Couldn't create & checkout new Branch`)
     writeError(e)
+  }
+}
+
+export const mergeMasterIntoBranch = async (repo: Repository) => {
+  const currentBranch: Reference = await repo.getCurrentBranch();
+  const masterBranch: Reference = await repo.getReference('master');
+
+  // perform merge
+  try {
+    await repo.mergeBranches(currentBranch, masterBranch, repo.defaultSignature(), Merge.PREFERENCE.NONE);
+    writeSuccess(`Merged ${chalk.underline('master')} into ${chalk.underline(getShortNameFromRef(currentBranch))}`)
+  } catch(e) {
+    writeError(`Error while merging ${chalk.underline('master')} into ${chalk.underline(currentBranch.name())}`)
+    writeError(e);
   }
 }
