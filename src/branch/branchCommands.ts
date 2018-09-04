@@ -42,10 +42,7 @@ export const initBranchCommands = async () => {
           const prompt = new Confirm(chalk.hex('#1abc9c').bold(`The branch ${chalk.underline(name)} doesn't exist. Do you want to create it?`));
           const answer = await prompt.run();
           if(answer === true) {
-            const addRef: Reference | null = await createBranch(repo, name);
-            if(addRef !== null) {
               await checkoutNewBranch(repo, name);
-            }
           }
         }
         return;

@@ -9,6 +9,7 @@ export async function openRepository() {
   } catch(e) {
     writeError(`Couldn't open Repository`)
     writeError(e)
+    return undefined;
   }
 }
 
